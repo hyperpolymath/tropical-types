@@ -1,0 +1,109 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+= Tropical Resource Typing — Glossary
+:toc: preamble
+:toc-title: Contents
+:icons: font
+:doctype: article
+
+Cross-reference glossary for link:README.adoc[README.adoc], link:EXPLAINME.adoc[EXPLAINME.adoc], and the `tropical-resource-typing` wiki. Terms are classified as **standard** (existing concept used without modification), **rephrased** (standard concept with project-specific vocabulary), or **project-specific** (originating in this project).
+
+== Algebraic structures
+
+[[tropical-semiring]]
+Tropical semiring (max-plus)::
+  The semiring `(ℝ ∪ {-∞}, ⊕ = max, ⊗ = +)`. Addition is maximum; multiplication is standard addition.
+  *Classification:* **standard** (tropical geometry / idempotent mathematics).
+  *See also:* <<min-max-semiring>>
+
+[[min-max-semiring]]
+Min-max semiring (bottleneck)::
+  The semiring `(ℝ ∪ {+∞}, ⊕ = min, ⊗ = max)`. Addition is minimum; multiplication is maximum.
+  *Classification:* **standard**.
+  *See also:* <<tropical-semiring>>, <<hub-ceiling>>
+
+[[dioid]]
+Dioid::
+  An idempotent semiring (where `a ⊕ a = a`) with a natural preorder induced by `a ≤ b ↔ a ⊕ b = b`.
+  *Classification:* **standard**.
+  *Usage in this repo:* `ResourceAlgebra` bundles a `ResourceSemiring` with the dioid order and monotonicity laws.
+
+[[involution]]
+Involution (g ↦ maxGrade − g)::
+  The order-reversing map connecting the max-plus and min-max semirings. Exchanges min and max (De Morgan duality). Proved as a lattice anti-isomorphism; explicitly *not* a semiring homomorphism.
+  *Classification:* **standard** (lattice theory).
+
+== Typing and resources
+
+[[resource-grade]]
+Resource grade::
+  The tropical value attached to a type, representing a worst-case resource bound (latency, stack, heap, round-count).
+  *Classification:* **project-specific** (vocabulary).
+  *Distinction:* Resource grade ≠ resource algebra ≠ residue measure. See <<foundation-contract>>.
+
+[[resource-algebra]]
+Resource algebra::
+  The algebraic structure `(carrier, ⊕, ⊗, ≤)` satisfying `ResourceSemiring` and `ResourceAlgebra` laws. The interface that downstream languages instantiate.
+  *Classification:* **rephrased**. Dioids / idempotent semirings are standard; the specific packaging as `ResourceAlgebra` with parametric transport is project-specific.
+
+[[speculative-session-type]]
+Speculative session type::
+  A session type graded by a tropical resource grade, representing the worst-case cost of the interaction.
+  *Classification:* **project-specific** (application of tropical algebra to session types).
+
+[[adapter-path]]
+Adapter path::
+  A path between protocol participants graded by the min-max semiring, representing the bottleneck cost of adaptation.
+  *Classification:* **project-specific** (application of min-max algebra to adapter paths).
+
+== Theorems and boundaries
+
+[[hub-ceiling]]
+hub_ceiling::
+  The no-go corollary closing Protocol Squisher's universal-interoperability claim. Proves there is an upper bound (ceiling) on the interoperability achievable through a single universal adapter hub.
+  *Classification:* **project-specific** (novel theorem).
+
+[[parametric-transport]]
+parametric_resource_transport::
+  The parametric transport theorem: satisfying `ConsumerLawBundle` is sufficient to transport resource laws from the abstract `ResourceAlgebra` to a concrete consumer.
+  *Classification:* **project-specific** (mechanisation).
+
+[[qtt-refinement]]
+tropical_grade_le_sequentialTotal::
+  The QTT refinement: `max ≤ sum`. The tropical (max-plus) grade is always at most the sequential total, making it a sound worst-case approximation.
+  *Classification:* **project-specific** (mechanisation within this application).
+
+[[resource-stress]]
+Resource.Stress::
+  The proof that tropical carriers (`MaxPlus`, `MinPlus`) are infinite, distinguishing them from finite `{0, 1, ω}` reifications.
+  *Classification:* **project-specific** (separation proof).
+
+== Bridge concepts
+
+[[echo-bridge]]
+EchoBridge::
+  The formalisation that a resource algebra may measure Echo residues (direction E → R), but Echo is *not* a resource instance. No echo-types dependency.
+  *Classification:* **project-specific** (separation proof matching echo-types).
+
+[[foundation-contract]]
+Foundation contract::
+  The stable API surface (`Resource.*` namespace + `FOUNDATION_CONTRACT.md`) for downstream languages. Establishes vocabulary: resource grade ≠ resource algebra ≠ tropical instance ≠ residue measure; "tropical is not Echo".
+  *Classification:* **project-specific**.
+
+== Pronunciation guide
+
+[cols="1,2", options="header"]
+|===
+| Written | Spoken
+
+| `⊕`
+| "tropical plus" or "max"
+
+| `⊗`
+| "tropical times" or "plus"
+
+| `hub_ceiling`
+| "hub ceiling"
+
+| `{0,1,ω}`
+| "zero-one-omega"
+|===
