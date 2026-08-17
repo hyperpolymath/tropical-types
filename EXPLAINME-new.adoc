@@ -1,0 +1,186 @@
+// SPDX-License-Identifier: MPL-2.0
+= Tropical Resource Typing — EXPLAINME
+:toc: preamble
+:toc-title: Contents
+:icons: font
+:doctype: article
+
+This file backs every factual claim in link:README.adoc[README.adoc] with code paths and honest caveats. Read it if you are doing due diligence on whether the story matches the code.
+
+== Claim-to-implementation map
+
+=== TropicalSessionTypes grades speculative session types with max-plus
+
+[quote, README.adoc]
+____
+The max-plus semiring (⊕ = max, ⊗ = +) grading speculative session types: soundness (static grade = dynamic wall-clock cost) and tropical_grade_le_sequentialTotal (the QTT refinement, max ≤ sum).
+____
+
+How this is implemented::
+`link:TropicalSessionTypes.lean[]` defines the max-plus semiring on grades, the grading of session types, and proves soundness and `tropical_grade_le_sequentialTotal`. Depends only on `Init`. No `sorry`, no `Classical.choice`.
+
+Caveat::
+The max-plus semiring is standard mathematics. The contribution is the *application* to speculative session types and the mechanised QTT refinement. Soundness holds under the assumption that dynamic cost matches the static grade structure — this is the standard assumption for any resource-aware type system.
+
+=== TropicalAdapterPath grades adapter paths with min-max and refutes universal interoperability
+
+[quote, README.adoc]
+____
+The min-max / bottleneck semiring (⊕ = min, ⊗ = max) grading adapter paths. Home of hub_ceiling, the no-go corollary that closes Protocol Squisher's universal-interoperability claim.
+____
+
+How this is implemented::
+`link:TropicalAdapterPath.lean[]` defines the min-max semiring, the grading of adapter paths, and proves `hub_ceiling`. Depends only on `Init`. No `sorry`, no `Classical.choice`. The provenance of the refuted claim is the frozen archive in `protocol-squisher` (left unchanged there).
+
+Caveat::
+This is the strongest result in the repo. Proving a no-go theorem (an interoperability bound) is rigorous, defensive work that closes a specific overclaim. No known gap.
+
+=== The twins are connected by a lattice anti-isomorphism, not a semiring homomorphism
+
+[quote, README.adoc]
+____
+The two are connected by the order-reversing involution g ↦ maxGrade − g, proved here as a lattice anti-isomorphism (De Morgan: it exchanges min and max), not a semiring homomorphism.
+____
+
+How this is implemented::
+Proved in the root Lean files. The involution exchanges `min` and `max` (De Morgan duality) but does not preserve the additive operation of the semiring, hence is not a semiring homomorphism.
+
+Caveat::
+This is standard lattice theory, restated for these specific carriers. Stating explicitly that it is *not* a semiring homomorphism prevents a common misreading where duality is assumed to preserve all algebraic structure.
+
+=== Resource.Algebra provides a parametric transport theorem
+
+[quote, README.adoc]
+____
+ResourceSemiring (ops + semiring laws) and the ordered ResourceAlgebra (preorder + monotone operations), bundled with the canonical dioid-order builder and the parametric transport theorem parametric_resource_transport over ConsumerLawBundle.
+____
+
+How this is implemented::
+`link:Resource/Algebra/[]` defines the interfaces and proves `parametric_resource_transport` (aliased as `resource_laws_sufficient_for_consumers`). The theorem states that satisfying the `ConsumerLawBundle` is sufficient to transport resource laws from the abstract algebra to a concrete consumer.
+
+Caveat::
+The parametricity is over the `ConsumerLawBundle` record, not over an arbitrary universe. Downstream languages must instantiate this record. This is a design choice bounding the abstraction level.
+
+=== Resource.Instances satisfy the one interface
+
+[quote, README.adoc]
+____
+Concrete instances all satisfying the one interface: Linear and Affine ({0,1,ω} usage, differing only in order), MaxPlus, MinPlus, and MinMax.
+____
+
+How this is implemented::
+`link:Resource/Instances/[]` provides the five instances. Each proves the `ResourceAlgebra` laws. `Linear` and `Affine` share the same carrier `{0, 1, ω}` but differ in their preorder, demonstrating that the interface captures order-theoretic distinctions.
+
+Caveat::
+None currently known. The instances are small and mechanically verified.
+
+=== Resource.Stress proves tropical carriers are infinite
+
+[quote, README.adoc]
+____
+Proves the tropical carriers are infinite — the stress test that the abstraction is not a finite {0,1,ω} reification.
+____
+
+How this is implemented::
+`link:Resource/Stress.lean[]` proves that the `MaxPlus` and `MinPlus` carriers are infinite, distinguishing them from the finite `{0, 1, ω}` instances.
+
+Caveat::
+This is a separation proof in the same spirit as echo-types' matched-negatives: it proves the tropical abstraction is not a trivial finite reification. No known gap.
+
+=== Resource.EchoBridge establishes that Echo is not a resource instance
+
+[quote, README.adoc]
+____
+A resource algebra may measure Echo residues (direction E → R); Echo is not a resource instance. No echo-types dependency.
+____
+
+How this is implemented::
+`link:Resource/EchoBridge.lean[]` defines the measurement direction (E → R) and proves that Echo is not a resource instance. The bridge does not import the `echo-types` Agda library; it establishes the vocabulary boundary in Lean.
+
+Caveat::
+This matches the `Echo.Separation.NotResourceInstance` result in `echo-types` but is proved independently in Lean without importing Agda artifacts. The two results should be consistent; cross-checking is a manual obligation.
+
+=== Proof purity: no sorry, no Classical.choice, no Mathlib
+
+[quote, README.adoc]
+____
+Every headline theorem depends only on propext (+ Quot.sound) — no sorry, no Classical.choice.
+____
+
+How this is implemented::
+`lake build` is green. `lean-toolchain` pins Lean 4.13.0. Imports are only `Init`. Grep for `sorry` and `Classical.choice` returns no hits in proof terms. Full provenance in `link:docs/LEAN-FORMALIZATION.adoc[]`.
+
+Caveat::
+The dependence on `propext` and `Quot.sound` is the standard foundational commitment for Lean 4 mathematics using quotients. This is not constructively neutral; a user working in a strict cubical setting would need to re-derive these results.
+
+== Dogfooded Across The Account
+
+[cols="1,2,2", options="header"]
+|===
+| Technology / Pattern | Used here | Also used in
+
+| Lean 4 resource-grade axis
+| `Resource.*` library
+| link:https://github.com/hyperpolymath/typed-wasm[typed-wasm] (planned deployment)
+
+| Tropical session-type grading
+| `TropicalSessionTypes.lean`
+| link:https://github.com/hyperpolymath/protocol-squisher[protocol-squisher] (refuted claim)
+
+| No-go theorem methodology
+| `hub_ceiling`
+| link:https://github.com/hyperpolymath/echo-types[echo-types] (matched-negatives)
+|===
+
+== Known gaps
+
+[CAUTION]
+====
+**Reference implementation only.** `impl/` exercises the type-system rules but is not a production checker. No type-inference algorithm is implemented.
+====
+
+[CAUTION]
+====
+**No average-case or probabilistic bounds.** The tropical semiring captures worst-case (max). Expected-cost analysis requires a different algebraic structure (e.g., probabilistic semirings), which is out of scope.
+====
+
+[CAUTION]
+====
+**EchoBridge is not cross-checked against Agda.** The Lean result `Echo is not a resource instance` and the Agda result `Echo.Separation.NotResourceInstance` are proved independently. Consistency is a manual obligation.
+====
+
+[CAUTION]
+====
+**Protocol Squisher refutation is archival.** `hub_ceiling` refutes the universal-interoperability claim. The original claim remains frozen in `protocol-squisher`'s provenance archive, unchanged. This repo provides the refutation; it does not rewrite the history.
+====
+
+== Evidence Index
+
+[cols="2,3", options="header"]
+|===
+| Path | Proves
+
+| `TropicalSessionTypes.lean`
+| Max-plus grading soundness + QTT refinement
+
+| `TropicalAdapterPath.lean`
+| Min-max grading + `hub_ceiling` no-go
+
+| `Resource/Algebra/`
+| `ResourceSemiring` / `ResourceAlgebra` + parametric transport
+
+| `Resource/Instances/`
+| Five concrete instances satisfying the interface
+
+| `Resource/Stress.lean`
+| Tropical carriers are infinite (not `{0,1,ω}`)
+
+| `Resource/EchoBridge.lean`
+| Echo is not a resource instance (E → R measurement only)
+
+| `docs/LEAN-FORMALIZATION.adoc`
+| Build recipe, theorem index, provenance
+
+| `docs/RESOURCE-ALGEBRA.adoc`
+| Resource algebra contract and vocabulary
+|===
