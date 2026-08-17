@@ -1,149 +1,215 @@
-= tropical-types
+// SPDX-License-Identifier: MPL-2.0
+= Tropical Resource Typing — Max-Plus Algebra for Worst-Case Bounds
 :toc: preamble
+:toc-title: Contents
 :icons: font
-:revdate: 2026-05-26
-// SPDX-License-Identifier: CC-BY-SA-4.0
-// SPDX-FileCopyrightText: 2026 Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+:doctype: article
 
-A short technical note introducing a **max-plus (tropical) algebraic
-approach to resource-aware type systems**, with applications to
-worst-case cost analysis and protocol typing.
+image:https://img.shields.io/badge/OpenSSF-BestPractices-green[link="https://www.bestpractices.dev/projects/XXXX"]
 
-== The idea in one paragraph
+A Lean 4 formalization and technical note applying max-plus (tropical) algebra to resource-aware type systems, yielding compositional worst-case bounds for latency, stack usage, and adversarial round-counts.
 
-Conventional resource-aware type systems track resources additively
-(e.g. linear logic's `!A ⊗ B`). The *tropical / max-plus* semiring
-replaces sum/max — so type-system operations naturally compose to the
-**worst-case bound** rather than a probabilistic / average-case figure.
-This makes the resulting analysis directly applicable to:
+== Overview
 
-* Latency budgets in distributed protocols.
-* Worst-case stack/heap usage in resource-constrained embedded code.
-* Provable upper bounds on adversarial protocol round-counts.
+Conventional resource-aware type systems track resources additively (e.g., linear logic's `!A ⊗ B`). The tropical / max-plus semiring replaces sum with max — so type-system operations naturally compose to the *worst-case* bound rather than a probabilistic or average-case figure.
 
-== What's in here
+The max-plus semiring is standard mathematics. What this repo contributes:
 
-`document/`::
-The note itself (AsciiDoc source). The publishable artefact.
+* **Typing rules** applying tropical algebra to speculative session types and adapter paths.
+* **A no-go theorem** (`hub_ceiling`) refuting the universal-interoperability claim of Protocol Squisher.
+* **A reusable resource-grade axis** (`Resource.*`) with a parametric transport theorem for downstream languages.
+* **A separation proof** that resource algebras measure Echo residues but are not Echo instances.
+* **Dependency-free Lean 4 proofs** — no Mathlib, no `sorry`, no `Classical.choice`.
 
-`impl/`::
-A reference implementation — a small worked checker exercising the
-type-system rules from the note.
+== The twin formalizations
 
-`docs/`::
-Supplementary material — proofs, derivations, related-work survey.
+Two Lean 4 proofs sit at the repository root, connected by an order-reversing involution:
 
-`audits/`::
-Audit logs from the estate-wide review processes (Hypatia neurosymbolic
-scan, governance-reusable checks, etc.).
+=== TropicalSessionTypes.lean
 
-`metadata/`::
-Machine-readable metadata (citations, related-work links, dependency
-declarations).
+The max-plus semiring (`⊕ = max`, `⊗ = +`) grading speculative session types.
 
-== Quickstart (reading)
+* **Soundness**: static grade equals dynamic wall-clock cost.
+* **QTT refinement** (`tropical_grade_le_sequentialTotal`): `max ≤ sum`.
+
+=== TropicalAdapterPath.lean
+
+The min-max / bottleneck semiring (`⊕ = min`, `⊗ = max`) grading adapter paths.
+
+* **`hub_ceiling`**: the no-go corollary closing Protocol Squisher's universal-interoperability claim.
+
+=== The connection
+
+The two are related by the involution `g ↦ maxGrade − g`, proved here as a *lattice anti-isomorphism* (De Morgan: exchanges min and max). It is explicitly *not* a semiring homomorphism — this is a structural fact about the duality, not a weakness.
+
+== What is standard and what is ours
+
+[cols="1,2,2", options="header"]
+|===
+| Concept | Status | Home in this repo
+
+| Max-plus / min-max semirings
+| Standard (tropical geometry)
+| `TropicalSessionTypes.lean`, `TropicalAdapterPath.lean`
+
+| Dioid / idempotent semiring ordering
+| Standard
+| `Resource.Algebra.*`
+
+| De Morgan involution between max-plus and min-max
+| Standard (lattice theory)
+| Root proofs
+
+| Tropical grading of speculative session types
+| **Novel application**
+| `TropicalSessionTypes.lean`
+
+| `hub_ceiling` no-go theorem
+| **Novel theorem** (refutes Protocol Squisher)
+| `TropicalAdapterPath.lean`
+
+| Parametric transport theorem for resource laws
+| **Novel mechanisation**
+| `Resource.Algebra.*`
+
+| Proving tropical carriers are infinite (not `{0,1,ω}`)
+| **Novel separation proof**
+| `Resource.Stress`
+
+| Echo is not a resource instance
+| **Novel separation proof** (matches echo-types)
+| `Resource.EchoBridge`
+|===
+
+== The resource-grade axis (Resource.*)
+
+A reusable, consumer-facing Lean library for downstream languages. `import Resource` provides:
+
+`Resource.Algebra.*`::
+  The interface: `ResourceSemiring` (ops + laws) and ordered `ResourceAlgebra` (preorder + monotone ops), bundled with the canonical dioid-order builder and `parametric_resource_transport` over `ConsumerLawBundle`.
+
+`Resource.Instances.*`::
+  Concrete instances satisfying the one interface: `Linear`, `Affine` ({0,1,ω} usage, differing only in order), `MaxPlus`, `MinPlus`, `MinMax`.
+
+`Resource.Stress`::
+  Proves the tropical carriers are infinite — the stress test that the abstraction is not a finite {0,1,ω} reification.
+
+`Resource.EchoBridge`::
+  A resource algebra may measure Echo residues (direction E → R); Echo is *not* a resource instance. No echo-types dependency.
+
+Vocabulary and contract are in `FOUNDATION_CONTRACT.md`; full detail in `docs/RESOURCE-ALGEBRA.adoc`.
+
+== Proof purity
+
+[cols="1,2", options="header"]
+|===
+| Property | Status
+
+| Lean 4.13.0, `lake build` green
+| Yes
+
+| Depends only on `Init`
+| Yes (no Mathlib)
+
+| Every headline theorem depends only on `propext` + `Quot.sound`
+| Yes
+
+| `sorry`
+| None
+
+| `Classical.choice`
+| None
+|===
+
+Full detail, build/verify recipe, theorem index, and provenance: `docs/LEAN-FORMALIZATION.adoc`.
+
+== Known scope boundaries
+
+[CAUTION]
+====
+**Research note, not production checker.** The `impl/` directory is a small reference implementation exercising the type-system rules from the note. It is intentionally not a production-ready type checker.
+====
+
+[CAUTION]
+====
+**Worst-case only.** The tropical semiring yields worst-case (max) bounds. It does not track average-case, probabilistic, or expected-cost figures. This is by design; a different algebraic structure is required for those.
+====
+
+[CAUTION]
+====
+**EchoBridge is one-directional.** Resource algebras measure Echo residues (E → R), but Echo is not a resource instance. The bridge does not import the echo-types library; it establishes the vocabulary boundary.
+====
+
+== Build
 
 [source,bash]
 ----
-git clone git@github.com:hyperpolymath/tropical-resource-typing.git
-cd tropical-resource-typing/document/
+# Lean formalization
+lake build
 
-# Render to HTML (asciidoctor required):
-asciidoctor -o /tmp/note.html main.adoc
-----
-
-== Quickstart (running the reference impl)
-
-[source,bash]
-----
+# Reference implementation
 cd impl/
 just build
 just test
+
+# Render technical note
+cd document/
+asciidoctor -o /tmp/note.html main.adoc
 ----
 
-== Status
+== Repository Layout
 
-* **Licence**: MPL-2.0. (Migrated from PMPL-1.0-or-later 2026-05-26 per
-  the estate licence-debt audit, hyperpolymath/standards#196.)
-* **Maturity**: research note. The implementation is intentionally
-  small — a "shows the rules" reference, not a production checker.
-* **Audit findings**: see `docs/tech-debt-2026-05-26.md` if present
-  (added by the 2026-05-26 estate tech-debt scan).
+[cols="1,3", options="header"]
+|===
+| Path | Purpose
 
-== Lean 4 formalization
+| `TropicalSessionTypes.lean`
+| Max-plus grading of speculative session types
 
-Two dependency-free Lean 4 proofs sit at the repository root — the
-*order-reversing twins* of one tropical duality, built together by Lake and
-pinned to **Lean 4.13.0** (`lean-toolchain`, `import Init` only, no Mathlib):
+| `TropicalAdapterPath.lean`
+| Min-max grading of adapter paths + `hub_ceiling` no-go
 
-`TropicalSessionTypes.lean`::
-The **max-plus** semiring (⊕ = max, ⊗ = +) grading speculative session types:
-`soundness` (static grade = dynamic wall-clock cost) and
-`tropical_grade_le_sequentialTotal` (the QTT refinement, `max ≤ sum`).
+| `Resource/`
+| Reusable resource-grade axis (Algebra, Instances, Stress, EchoBridge)
 
-`TropicalAdapterPath.lean`::
-The **min-max** / bottleneck semiring (⊕ = min, ⊗ = max) grading adapter paths.
-Home of `hub_ceiling`, the no-go corollary that closes Protocol Squisher's
-universal-interoperability claim. (Source: the frozen provenance archive in
-`protocol-squisher`, left unchanged there.)
+| `document/`
+| Technical note (AsciiDoc source)
 
-The two are connected by the order-reversing involution `g ↦ maxGrade − g`,
-proved here as a lattice *anti-isomorphism* (De Morgan: it exchanges min and
-max), not a semiring homomorphism.
+| `impl/`
+| Reference implementation of type-system rules
 
-=== The resource-grade axis (`Resource.*`)
+| `docs/`
+| Supplementary material, Lean formalization detail, resource algebra docs
 
-On top of the two twins sits a reusable, consumer-facing *resource-grade axis*
-for downstream languages (e.g. `my-lang`): a single Lean library, `import Resource`.
+| `audits/`
+| Estate-wide review logs (Hypatia scan, governance checks)
+|===
 
-`Resource.Algebra.*`::
-The interface — `ResourceSemiring` (ops + semiring laws) and the ordered
-`ResourceAlgebra` (preorder + monotone operations), bundled with the canonical
-dioid-order builder and the parametric transport theorem
-`parametric_resource_transport` (alias `resource_laws_sufficient_for_consumers`)
-over `ConsumerLawBundle`.
+== Documentation
 
-`Resource.Instances.*`::
-Concrete instances all satisfying the one interface: `Linear` and `Affine`
-(`{0,1,ω}` usage, differing only in order), `MaxPlus`, `MinPlus`, and `MinMax`.
-
-`Resource.Stress`::
-Proves the tropical carriers are *infinite* — the stress test that the
-abstraction is not a finite `{0,1,ω}` reification.
-
-`Resource.EchoBridge`::
-A resource algebra may *measure* Echo residues (direction `E → R`); Echo is not a
-resource instance. No `echo-types` dependency.
-
-The contract and vocabulary (resource grade vs resource algebra vs tropical
-instance vs residue measure; "tropical is not Echo") are in
-link:FOUNDATION_CONTRACT.md[`FOUNDATION_CONTRACT.md`]; full detail in
-link:docs/RESOURCE-ALGEBRA.adoc[`docs/RESOURCE-ALGEBRA.adoc`].
-
-[source,bash]
-----
-lake build          # green; no network deps
-----
-
-`lake build` is green and every headline theorem depends only on `propext`
-(+ `Quot.sound`) — no `sorry`, no `Classical.choice`. Full detail, build/verify
-recipe, theorem index and provenance: link:docs/LEAN-FORMALIZATION.adoc[`docs/LEAN-FORMALIZATION.adoc`].
-
-== Reading order
-
-. Start with `document/` for the conceptual content.
-. Cross-reference `impl/` to see the rules in code.
-. Consult `audits/` if you want to see the estate-wide checks that
-  have run against this repo.
-
-== Contributing
-
-See link:CONTRIBUTING.md[CONTRIBUTING.md]. GPG-signed commits required.
-Feedback on the note's framing or proofs is especially welcome — open
-an Issue rather than a PR for substantive disagreements.
+* link:EXPLAINME.adoc[EXPLAINME] — claim-by-claim receipts and known gaps
+* link:docs/LEAN-FORMALIZATION.adoc[Lean formalization detail] — theorem index, build recipe, provenance
+* link:docs/RESOURCE-ALGEBRA.adoc[Resource algebra detail] — contract, vocabulary, instances
+* link:FOUNDATION_CONTRACT.md[Foundation contract] — stable API for downstream languages
+* link:Glossary.adoc[Glossary] — terminology reference
 
 == Companion repositories
 
-* link:https://github.com/hyperpolymath/standards[`hyperpolymath/standards`] — canonical estate standards.
-* link:https://github.com/hyperpolymath/echo-types[`hyperpolymath/echo-types`] — sibling formal-foundations work in Agda.
-* link:https://github.com/hyperpolymath/typed-wasm[`hyperpolymath/typed-wasm`] — the typed-wasm target where the resource-typing rules from this note may eventually be deployed in practice.
+* link:https://github.com/hyperpolymath/echo-types[echo-types] — sibling formal-foundations work in Agda
+* link:https://github.com/hyperpolymath/typed-wasm[typed-wasm] — target where resource-typing rules may be deployed
+* link:https://github.com/hyperpolymath/standards[standards] — canonical estate standards
+
+== License
+
+SPDX-License-Identifier: MPL-2.0 — see link:LICENSE[LICENSE].====
+
+== Build
+
+[source,bash]
+----
+# Lean formalization
+lake build
+
+# Reference implementation
+cd impl/
+just build
