@@ -1,0 +1,203 @@
+== Foundations bridge — consuming `+echo-types+` and `+tropical-resource-typing+`
+
+This is a downstream integration brief for `+my-lang+` or any other
+consumer of the two foundations. It coordinates their outputs; it *adds
+no new proofs*. Every theorem named below is already mechanised upstream
+— this document only tells a downstream language _how to depend on the
+two foundations without collapsing them into each other_.
+
+Source of truth:
+
+[width="100%",cols="25%,25%,25%,25%",options="header",]
+|===
+|Foundation |Axis exported |Contract |Machine-checked in
+|`+tropical-resource-typing+` |resource-grade axis
+|`+FOUNDATION_CONTRACT.md+` |Lean 4 `+Resource.*+`
+
+|`+echo-types+` |residual-modality axis |`+FOUNDATION_CONTRACT.md+`
+|Agda `+Echo.*+` (`+--safe --without-K+`)
+|===
+
+'''''
+
+=== 1. Two independent axes
+
+A consumer tracks *two orthogonal things*. They are not refinements of
+one another and they meet only at the one-directional seam in §2.
+
+____
+The numbering (`+1+`, `+3+`) follows the upstream axis taxonomy. Only
+these two axes are in scope for this brief; they are mutually
+independent at the core.
+____
+
+==== Axis 1 — Resource algebra (`+tropical-resource-typing+`)
+
+* *What it is:* binder/resource _quantities_ — usage, cost, latency,
+critical path, bottleneck — living in an ordered-semiring /
+usage-algebra interface.
+* *Interface:* `+Resource.ResourceAlgebra+` (=
+`+Resource.ResourceSemiring+` + an order). `+⊞+` = choice/alternative,
+`+⊠+` = sequential composition.
+* *Instances:*
+`+Resource.Instances.{Linear, Affine, MaxPlus, MinPlus, MinMax}+` —
+i.e. linear / affine usage and the tropical (max-plus / min-plus /
+min-max) algebras. The tropical instances double as an *infinite-carrier
+stress test* (`+Resource.Stress+`, `+Resource.Infinite+`).
+* *Used by:* QTT-style / quantitative *resource soundness*. Prove
+soundness _parametrically_ over the interface via
+`+Resource.ConsumerLawBundle+` (`+parametric_resource_transport+`, alias
+`+resource_laws_sufficient_for_consumers+`), then instantiate at any
+algebra above with no algebraic re-proof.
+
+==== Axis 3 — Echo modality (`+echo-types+`)
+
+* *What it is:* structured *residue / loss / forgetting / projection* —
+the remainder of an information-losing map,
+`+Echo f y := Σ (x : A), (f x ≡ y)+`.
+* *Indexed by a thin poset:* `+Echo.Index.ThinPoset+`; the canonical
+index is the three-point loss order `+keep ≤ residue ≤ forget+`
+(`+grade-thinPoset+`). Thinness (order proofs are propositional) is
+load-bearing, not cosmetic.
+* *Proves residual metatheory:* `+Echo.Modality.Core+` /
+`+Echo.Modality.Interface+` give `+degrade+`, the unit law
+`+degrade-id+`, the path-independence law `+degrade-compose+`, and the
+no-section theorem `+no-section-of-collapsing-map+`; the
+downstream-instantiable record is `+EchoModality+` (canonical witness
+`+grade-echoModality+`).
+* *Independent of the resource algebra at the core:*
+`+Echo.Modality.Core+`, `+Echo.Modality.Interface+`, and
+`+Echo.Index.ThinPoset+` import *no* semiring / resource-algebra
+machinery. The proof-relevant content of `+degrade+` is carried by the
+thin order of the index, not by any semiring-valued grade.
+
+'''''
+
+=== 2. The seam
+
+The only sanctioned connection between the axes is a *measure*, pointing
+in exactly one direction:
+
+....
+ResidueMeasure :  Echo residue  ──▶  ResourceAlgebra carrier
+....
+
+* *Direction:* a resource algebra is _consumed as a measure by_ Echo.
+The residue carrier is opaque; only the codomain is a resource algebra.
+* *Never the reverse:* Echo is *not* produced as a resource instance,
+nor as a `+Soundness(R)+` instance.
+
+The seam is mechanised on both sides — pick whichever framing matches
+your downstream proof obligation; both fix the same `+E → R+` direction:
+
+*echo-types side (order-monotone view)* — `+Echo.Measure.Interface+`:
+
+[source,agda]
+----
+record ResidueMeasure (E : EchoModality P ℓc) (R : OrderedCarrier ℓm ℓo) where
+  field
+    measure  : ∀ {i} → ⟦ i ⟧ → Carrier R
+    monotone : ∀ {i j} (p : i ≤ j) (x : ⟦ i ⟧) →
+               measure x ≤R measure (degrade p x)
+----
+
+*tropical side (monoid-homomorphism view)* — `+Resource.EchoBridge+`:
+
+[source,lean]
+----
+structure ResidueMeasure (E : Type) (R : Type) [ResourceAlgebra R] where
+  combine : E → E → E              -- Echo-side residue accumulation (opaque)
+  empty   : E
+  measure : E → R                  -- the measurement into a resource grade
+  measure_empty   : measure empty = one
+  measure_combine : ∀ e₁ e₂, measure (combine e₁ e₂) = measure e₁ ⊠ measure e₂
+----
+
+In both, the residue carrier `+E+` carries *no* `+ResourceAlgebra+`
+instance and nothing gives it one. `+echo-types+` and
+`+tropical-resource-typing+` have *no dependency on each other*; the
+seam is supplied downstream.
+
+'''''
+
+=== 3. Downstream import pattern
+
+A consuming language (e.g. `+my-lang+`) should expose:
+
+....
+Resource parameter   R : ResourceAlgebra        -- Axis 1
+Echo parameter       E : EchoModality           -- Axis 3
+Optional seam        M : ResidueMeasure E R      -- §2, only if you measure residues
+....
+
+Prove resource soundness against `+R+` parametrically (quote
+`+Resource.ConsumerLawBundle+`), instantiate Echo at your own fibration
+via `+EchoModality+`, and reach for `+M+` _only_ when you genuinely
+measure residues.
+
+It should *not* introduce any of:
+
+* ✗ Echo as an instance of `+ResourceAlgebra+`
+* ✗ Echo as an instance of `+Soundness(R)+` (resource soundness)
+* ✗ Tropical (any of the resource instances) as an Echo modality
+
+These three are exactly the collapses the foundations are built to
+prevent.
+
+'''''
+
+=== 4. Vocabulary
+
+Use these three terms precisely — they name three orthogonal things:
+
+[width="100%",cols="50%,50%",options="header",]
+|===
+|Use |Meaning
+|*resource grade* |a binder/resource quantity on the resource-algebra
+axis (Axis 1)
+
+|*echo index* |an inhabitant of the thin-poset index of the Echo
+modality, e.g. `+keep ≤ residue ≤ forget+` (Axis 3)
+
+|*residue measure* |a resource-algebra-valued _observation_ of an Echo
+residue (the §2 seam)
+|===
+
+*Avoid / deprecate `+echo-grade+`.* It ambiguously fuses the _echo
+index_ (the retention axis of the modality) with the _resource grade_
+(the semiring axis) — which is precisely the collapse this bridge
+forbids. If the term must be explained, explain it as that ambiguity.
+
+'''''
+
+=== 5. Boundary invariants
+
+These hold as mechanised upstream results; downstream code must not
+violate them.
+
+[arabic]
+. *Echo IS-NOT a resource instance.* Do not model Echo as a
+`+Soundness(S)+` / resource-algebra instance. (Upstream:
+`+Echo.Separation.NotResourceInstance+`; the proof-relevant Echo
+structure is carried by thinness of the index, not by any semiring
+grade.)
+. *Tropical IS a resource-algebra instance.* Max-plus / min-plus /
+min-max are instances of `+Resource.ResourceAlgebra+` and belong on the
+resource-grade axis — they are not Echo modalities.
+. *Residue measures are observations, not definitions of Echo.* A
+`+ResidueMeasure+` is a lossy, one-directional read-out;
+`+Echo.Modality.Core+` never depends on it, and never may.
+. *Equal residue measure does not imply equal Echo.* A measure can send
+two genuinely-distinct Echo residues to the same value while the
+modality keeps them apart — so no measure is the identity criterion of
+Echo. (Upstream: `+equal-measure-does-not-imply-equal-echo+`, and the
+sharper informative-measure witness
+`+equal-informative-measure-does-not-imply-equal-echo+`.)
+
+'''''
+
+_This brief restates the two `+FOUNDATION_CONTRACT.md+` files for the
+downstream direction and adds nothing to them. For the full contracts
+and the parametric transport / anti-collapse theorems, read each
+foundation’s `+FOUNDATION_CONTRACT.md+` and (tropical)
+`+docs/ECHO-RESIDUE-BRIDGE.adoc+`._
