@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: MPL-2.0
+# This workflow is managed by gh actions-lock.
 # lean.yml — build the Lean 4 tropical proofs and audit their axioms.
 #
 # Load-bearing build workflow (kept standalone in-repo, not in the shared
@@ -25,7 +26,7 @@ jobs:
   lake-build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
 
       - name: Install elan (Lean toolchain manager)
         run: |
