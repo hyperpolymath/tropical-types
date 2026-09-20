@@ -1,0 +1,60 @@
+# SPDX-License-Identifier: MPL-2.0
+# Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
+#
+# CI-CONTEXTS.a2ml — the status-context contract for `main`.
+#
+# A required status check is matched by *string equality* against the name GitHub
+# publishes for that check run. A required name that nothing can publish is an
+# unsatisfiable requirement: every pull request stays BLOCKED while the CI board
+# shows green. That is exactly what hyperpolymath/tropical-types#17 was, and
+# tools/check-ci-contexts.sh now enforces this file so it cannot recur silently.
+#
+# Written 2026-09-20 resolving hyperpolymath/tropical-types#17.
+# See docs/CI-CONTEXTS.adoc for the narrative and the remediation recipes.
+
+[ci-contexts]
+version = "0.1.0"
+last-updated = "2026-09-20"
+schema = "CI-CONTEXTS"
+
+[naming-rule]
+# A job that calls a reusable workflow publishes "<caller> / <inner job name>";
+# a normal job publishes its own `name:` (or its job id when it has none).
+reusable-caller = "<caller display name or job id> / <inner job display name or job id>"
+normal-job = "<job name:, else job id>"
+
+[[wrapper]]
+gate = "Hypatia Neurosymbolic Analysis"
+workflow = ".github/workflows/hypatia-scan.yml"
+caller-job-id = "hypatia"
+reusable = "hyperpolymath/standards/.github/workflows/hypatia-scan-reusable.yml"
+published-contexts = ["hypatia / Hypatia Neurosymbolic Analysis"]
+
+[[wrapper]]
+gate = "Secret Scanner"
+workflow = ".github/workflows/secret-scanner.yml"
+caller-job-id = "secret-scan"
+reusable = "hyperpolymath/standards/.github/workflows/secret-scanner-reusable.yml"
+published-contexts = ["secret-scan / gitleaks", "secret-scan / rust-secrets", "secret-scan / shell-secrets"]
+
+[[wrapper]]
+gate = "Governance"
+workflow = ".github/workflows/governance.yml"
+caller-job-id = "governance"
+reusable = "hyperpolymath/standards/.github/workflows/governance-reusable.yml"
+published-contexts = ["governance / Code quality + docs", "governance / Licence consistency", "governance / Actions lockfile verify", "governance / Check Workflow Staleness", "governance / Trusted-base reduction policy", "governance / Security policy checks"]
+
+[armable-contexts]
+# Strings a branch rule may require of this repository today, because a workflow
+# here publishes them. Keep in step with the [[wrapper]] lists above.
+canonical-hypatia = "hypatia / Hypatia Neurosymbolic Analysis"
+
+[never-armable-contexts]
+# A reusable-wrapper caller can never publish the reusable's bare inner name:
+# GitHub always prefixes it with the caller. Requiring a bare name is therefore
+# unsatisfiable by construction — the residual form of issue #17.
+# Remediation, in order of preference:
+#   1. require the prefixed name recorded in [armable-contexts];
+#   2. if the bare name must stay, publish it from a job implemented in this
+#      repository rather than from a wrapper.
+bare-hypatia = "Hypatia Neurosymbolic Analysis"
