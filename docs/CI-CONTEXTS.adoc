@@ -1,0 +1,161 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+// SPDX-FileCopyrightText: 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
+= CI status contexts — what this repository publishes, and what may be required
+:toc:
+:toclevels: 2
+
+[abstract]
+A required status check is matched by *string equality* against the check-run
+name GitHub publishes. A required name that nothing can publish is an
+unsatisfiable requirement: every pull request stays `BLOCKED` while the CI board
+shows green. This repository hit exactly that (issue #17). This document records
+the names this repository publishes, the one-line rule that generates them, and
+the guard that fails the build if the two ever drift apart.
+
+== The failure mode
+
+GitHub does not verify that a required context *can* be produced. It only waits
+for a check run with that exact name. So:
+
+* the CI board shows all real checks green;
+* the merge button stays disabled, with no error that names the cause;
+* the only ways out are an admin override or a correct string.
+
+Issue #17 is this failure mode: `main`'s branch protection required the bare
+context `Hypatia Neurosymbolic Analysis`, while the workflow that actually runs
+the scan publishes `scan / Hypatia Neurosymbolic Analysis` (and the aggregate
+`Hypatia`). No check run ever carried the required name.
+
+== The naming rule
+
+Two shapes exist, and only these two:
+
+[cols="1,2"]
+|===
+| Job kind | Published check-run name
+
+| a normal job
+| its `name:` — or its job id when it has no `name:`
+
+| a job that calls a reusable workflow
+| `<caller display name or job id> / <inner job display name or job id>`
+|===
+
+The second row is the whole of issue #17: *a wrapper can never publish the
+reusable's bare inner name*, because GitHub always prefixes it with the caller.
+Requiring a bare name from a wrapper is unsatisfiable by construction. That is
+also why the estate's earlier audit prescribed the prefixed form:
+https://github.com/hyperpolymath/standards/blob/main/docs/audits/audit-hypatia-pin-orphan-2026-05-27.adoc[`audit-hypatia-pin-orphan-2026-05-27.adoc`].
+
+== What this repository publishes today
+
+Derived from `.github/workflows/` and the pinned reusables — `tools/check-ci-contexts.sh`
+prints the same list, and CI runs it:
+
+[cols="1,2,1"]
+|===
+| Gate | Published context | Source
+
+| Hypatia scan
+| `hypatia / Hypatia Neurosymbolic Analysis`
+| `.github/workflows/hypatia-scan.yml` → standards `hypatia-scan-reusable.yml`
+
+| Secret scan
+| `secret-scan / gitleaks`, `secret-scan / rust-secrets`, `secret-scan / shell-secrets`
+| `.github/workflows/secret-scanner.yml`
+
+| Governance
+| `governance / Code quality + docs`, `governance / Licence consistency`,
+  `governance / Actions lockfile verify`, `governance / Check Workflow Staleness`,
+  `governance / Trusted-base reduction policy`, `governance / Security policy checks`, …
+| `.github/workflows/governance.yml`
+
+| Lean build
+| `lake-build`
+| `.github/workflows/lean.yml`
+
+| Email notification
+| `Email on push`
+| `.github/workflows/push-email-notify.yml`
+
+| Estate label sync
+| `sync`, `triage`
+| `.github/workflows/labels.yml`, `.github/workflows/label-triage.yml`
+|===
+
+== The contract, and the guard
+
+* `.machine_readable/CI-CONTEXTS.a2ml` — machine-readable record of the wrapper
+  caller ids and the exact context strings they publish, the string that may be
+  armed as a required check (`[armable-contexts]`), and the strings that can
+  never be satisfied (`[never-armable-contexts]`).
+* `tools/check-ci-contexts.sh` — the guard, run by
+  `.github/workflows/ci-contexts.yml` on every push and pull request.
+
+Two halves, deliberately different in strength:
+
+. *Contract check (offline, fails the build).* Every `[[wrapper]]` entry must
+  still describe the workflow as it is: the caller job id is present, and every
+  declared context is prefixed by that caller id. Deterministic, always
+  satisfiable, no token needed. This is what stops the string silently changing.
+. *Required-context check (live, advisory by default).* Every context required
+  by this repository's branch rulesets — and by legacy branch protection when
+  the token can read it — is compared against the set of names the workflows can
+  publish. A required context that no workflow can produce, and that is not
+  attached to a third-party app integration, is reported. It is a `::warning`,
+  not a red, unless `REQUIRED_CONTEXTS_STRICT=1`: a gate that reds nobody yet is
+  a warning, not a real gate. If the bare legacy name is found, the warning
+  names the exact replacement.
+
+Run it locally:
+
+[source,sh]
+----
+bash tools/check-ci-contexts.sh .                 # contract + advisory live check
+REQUIRED_CONTEXTS_STRICT=1 bash tools/check-ci-contexts.sh .   # make it a gate
+bash tools/check-ci-contexts.sh . --no-network    # contract only
+----
+
+== Arming the Hypatia gate
+
+The evidence in issue #17 was filed against a branch protection rule that
+required the bare string. As of 2026-09-20 the required-status-checks rule is
+*not* armed: legacy branch protection reports
+`enforcement_level=off` with an empty `contexts` list, and the `Base` ruleset
+carries no `required_status_checks` rule at all. So nothing is blocked today —
+and, with the caller job renamed, the canonical string is now producible, so the
+gate can be armed safely whenever the owner wants it back:
+
+[source,sh]
+----
+# ruleset route (needs Administration: write; id from GET /repos/OWNER/REPO/rulesets)
+gh api -X PUT repos/hyperpolymath/tropical-types/rulesets/14936606 \
+  -f 'rules[][type]=required_status_checks' \
+  -f 'rules[][parameters][required_status_checks][][context]=hypatia / Hypatia Neurosymbolic Analysis'
+----
+
+If a rule ever does require the bare `Hypatia Neurosymbolic Analysis`, there are
+exactly two honest options — and `tools/check-ci-contexts.sh` says so rather than
+letting the block be misdiagnosed:
+
+. require `hypatia / Hypatia Neurosymbolic Analysis` instead (preferred: it keeps
+  the shared reusable and the estate's canonical name);
+. implement the scan in this repository and publish the bare name from that job
+  (no wrapper — a wrapper cannot do it).
+
+== If the estate changes the convention
+
+The caller job id is the only lever, and it is recorded in one place. If the
+estate standardises on a different caller id (today the estate is inconsistent:
+most repositories use `scan`, the audit above documents `hypatia`), change the
+job id in `.github/workflows/hypatia-scan.yml` and the matching
+`caller-job-id`/`published-contexts` pair in `.machine_readable/CI-CONTEXTS.a2ml`
+in the same commit. The guard fails otherwise — that is the point.
+
+== Provenance
+
+* Issue: https://github.com/hyperpolymath/tropical-types/issues/17
+* Upstream audit (the wrapper-prefix class):
+  https://github.com/hyperpolymath/standards/blob/main/docs/audits/audit-hypatia-pin-orphan-2026-05-27.adoc
+* Estate-wide census of the class and its repair, 2026-09-20:
+  https://github.com/hyperpolymath/standards/blob/main/docs/audits/audit-ci-context-producibility-2026-09-20.adoc
