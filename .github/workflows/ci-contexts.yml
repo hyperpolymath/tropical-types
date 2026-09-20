@@ -1,24 +1,49 @@
 # This workflow is managed by gh actions-lock.
 # SPDX-License-Identifier: MPL-2.0
+# CI context contract — the guard for docs/CI-CONTEXTS.adoc.
+#
+# WHY THIS JOB EXISTS: a required status check is matched by string equality
+# against the check-run name GitHub publishes. A required name nothing can
+# publish blocks every pull request while the board shows green (issue #17), and
+# the failure is invisible from the CI side. tools/check-ci-contexts.sh makes both
+# halves visible: the offline contract check fails the build when the published
+# string would drift, and the live half reports any required context this
+# repository's workflows cannot produce.
+#
+# The live half reads the repository's branch rules. A fine-grained PAT with
+# `Administration: read` sees more than the Actions token does (legacy branch
+# protection is only readable with it); this job deliberately uses `github.token`
+# — no `secrets.*` reference, so no egress-review finding — and reports exactly
+# what it could not read instead of guessing. Run it locally with a broader token
+# (`GH_TOKEN=… bash tools/check-ci-contexts.sh .`) to get that extra coverage.
 name: CI context contract
+
 on:
   pull_request:
   push:
     branches: [main, master]
   workflow_dispatch:
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
 permissions:
   contents: read
+
 jobs:
   contract:
+    name: Required contexts are producible
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4.4.0
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
       - name: Check the CI context contract
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
-          GH_TOKEN: ${{ secrets.HYPATIA_SCAN_PAT || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: bash tools/check-ci-contexts.sh .
