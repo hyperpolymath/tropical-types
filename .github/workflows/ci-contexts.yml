@@ -10,12 +10,13 @@
 # string would drift, and the live half reports any required context this
 # repository's workflows cannot produce.
 #
-# The live half reads the repository's branch rules. A fine-grained PAT with
-# `Administration: read` sees more than the Actions token does (legacy branch
-# protection is only readable with it); this job deliberately uses `github.token`
-# — no `secrets.*` reference, so no egress-review finding — and reports exactly
-# what it could not read instead of guessing. Run it locally with a broader token
-# (`GH_TOKEN=… bash tools/check-ci-contexts.sh .`) to get that extra coverage.
+# The live half reads the repository's branch rules. A credential with
+# `Administration: read` sees more than the Actions token does — legacy branch
+# protection is only readable with one — so this job deliberately uses
+# `github.token` (no secret context referenced, hence no egress-review finding)
+# and reports exactly what it could not read rather than guessing. Run it locally
+# with a broader credential (`GH_TOKEN=… bash tools/check-ci-contexts.sh .`) to
+# get that extra coverage.
 name: CI context contract
 
 on:
