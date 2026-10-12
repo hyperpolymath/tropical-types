@@ -24,7 +24,10 @@ in resource-algebra (`Instances/MaxPlus.agda`), transcribed from
   the Agda instance. Occupancy (formerly R0-A, "HWM algebra in
   tropical-resource-typing, Lean") moved to resource-algebra/occupancy-types.
 
-== Proof-hole census (grep, 2026-10-12; lines where the token sits in a comment excluded)
+== Proof-hole census (grep, 2026-10-12; comments and Isabelle text blocks excluded)
+
+NOTE: The following matches occur in Isabelle `text` blocks. They are
+documentation, not active proof-hole markers, and are excluded from the census.
 
 ----
 Tropical_Matrices_Clean.thy:24:  All proofs are complete — zero @{text sorry}.
