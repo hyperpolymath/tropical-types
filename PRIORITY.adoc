@@ -1,46 +1,36 @@
 // SPDX-License-Identifier: CC-BY-SA-4.0
-// Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath)
+= PRIORITY — refreshed 2026-10-12
+:revdate: 2026-10-12
 
-= Tropical Resource Typing — Priority Actions
-:revdate: 2026-04-12
+Supersedes the 2026-04-12 list, which no longer described the repo.
 
-This file tracks immediate high-priority items that are not safely closed yet.
+== Standing (kernel ruling 2026-10-12)
 
-[cols="1,3,1,1"]
-|===
-| ID | Action | Priority | Status
+Lean 4 and Isabelle/HOL here are *provenance*: the Mathlib- and AFP-facing
+record. The family-facing max-plus algebra is the Agda `MaxPlus` instance
+in resource-algebra (`Instances/MaxPlus.agda`), transcribed from
+`TropicalSessionTypes.lean`; bridge obligation M-2 (any change to `tAdd`/
+`tMul` on either side reopens the correspondence) is a review item here.
 
-| TR-001
-| Repair Isabelle executable availability on this machine. Symlink
-  `/usr/local/bin/isabelle` → `/opt/Isabelle2025-1/bin/isabelle` fixed 2026-04-12.
-  `isabelle version` confirms `Isabelle2025-1`.
-| P0
-| DONE 2026-04-12
+== Priorities, in order
 
-| TR-001b
-| Fix text antiquotation errors in `Tropical_v2.thy` exposed by the working
-  Isabelle executable. Lines 11/13 used `@{typ "nat \<union> {-∞}"}` (not valid HOL
-  type syntax) — changed to plain `\<open>nat \<union> {-∞}\<close>` text blocks.
-  Build re-run in progress 2026-04-12.
-| P0
-| IN PROGRESS 2026-04-12
+. Clear the proof holes (census below; the one Lean `sorry` first — Lean is
+  what the Agda transcription was checked against).
+. AFP submission (TR-003): the manual step is still manual; record its
+  status rather than leaving it implied.
+. Record M-2 in PROOF-STATUS.adoc as a named review obligation with the
+  resource-algebra commit it was checked against.
+. Then nothing new: the family work that needs tropical is done through
+  the Agda instance. Occupancy (formerly R0-A, "HWM algebra in
+  tropical-resource-typing, Lean") moved to resource-algebra/occupancy-types.
 
-| TR-002
-| After TR-001, run `isabelle build -D . Tropical_Semirings` and capture
-  output in `docs/AFP-SUBMISSION-READY.adoc` with pass/fail note.
-| P0
-| IN PROGRESS (build running 2026-04-12)
+== Proof-hole census (grep, 2026-10-12; comments and Isabelle text blocks excluded)
 
-| TR-003
-| Submit AFP web form at `https://devel.isa-afp.org/submission.html` using
-  existing project metadata after TR-002 confirms clean build.
-| P1
-| JONATHAN (manual web submission)
+NOTE: The following matches occur in Isabelle `text` blocks. They are
+documentation, not active proof-hole markers, and are excluded from the census.
 
-| TR-004
-| Verify Lean side remains clean after any theory edits:
-  `TropicalSessionTypes.lean` has `instance : CommSemiring Tropical` and no `sorry`.
-| P2
-| VERIFIED 2026-04-12
-|===
-
+----
+Tropical_Matrices_Clean.thy:24:  All proofs are complete — zero @{text sorry}.
+Tropical_CNO.thy:29:  All sorry placeholders have been closed.
+Tropical_Kleene.thy:663:  All proofs are complete — zero @{text sorry}.
+----
