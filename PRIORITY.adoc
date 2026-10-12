@@ -30,6 +30,5 @@ in resource-algebra (`Instances/MaxPlus.agda`), transcribed from
 Tropical_Matrices_Clean.thy:24:  All proofs are complete — zero @{text sorry}.
 Tropical_CNO.thy:29:  All sorry placeholders have been closed.
 Tropical_Kleene.thy:663:  All proofs are complete — zero @{text sorry}.
-Tropical_Ordinal.thy:15:  with \<open>oops\<close> are the ones we want ECHIDNA to evaluate: each is
 TropicalAdapterPath.lean:46:  ## Open items (no sorry here — these are documented future work)
 ----
