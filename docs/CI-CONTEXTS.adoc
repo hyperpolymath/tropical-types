@@ -61,7 +61,7 @@ prints the same list, and CI runs it:
 | `.github/workflows/hypatia-scan.yml` → standards `hypatia-scan-reusable.yml`
 
 | Secret scan
-| `secret-scan / gitleaks`, `secret-scan / rust-secrets`, `secret-scan / shell-secrets`
+| `scan / gitleaks`, `scan / rust-secrets`, `scan / shell-secrets`
 | `.github/workflows/secret-scanner.yml`
 
 | Governance
