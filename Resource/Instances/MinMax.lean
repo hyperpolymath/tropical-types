@@ -6,7 +6,7 @@ import Resource.Algebra.Dioid
   # Resource instance — the min-max / bottleneck tropical algebra
 
   Author: Jonathan D.A. Jewell (hyperpolymath)
-  Verified: Lean 4.13.0 (pinned via `lean-toolchain`), no Mathlib.
+  Verified: Lean 4.35.0 (pinned via `lean-toolchain`), no Mathlib.
 
   The **min-max** (a.k.a. *bottleneck*) tropical semiring on `ℕ ∪ {+∞}`:
   choose the better route (`min`), and compose by the worst step (`max`).  This

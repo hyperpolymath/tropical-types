@@ -5,7 +5,7 @@ import Lake
 open Lake DSL
 
 /-- Pure core Lean 4 proofs (no Mathlib dependency).
-    Toolchain is pinned to `leanprover/lean4:v4.13.0` in `lean-toolchain`. -/
+    Toolchain is pinned to `leanprover/lean4:v4.35.0` in `lean-toolchain`. -/
 package «tropical-resource-typing» where
 
 @[default_target]

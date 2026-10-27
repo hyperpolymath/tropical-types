@@ -12,7 +12,7 @@ import Resource.Instances.MinMax
   #              consumer proof instantiates at all of them
 
   Author: Jonathan D.A. Jewell (hyperpolymath)
-  Verified: Lean 4.13.0 (pinned via `lean-toolchain`), no Mathlib.
+  Verified: Lean 4.35.0 (pinned via `lean-toolchain`), no Mathlib.
 
   This module is the machine-checked statement of the acceptance criteria:
 

@@ -6,7 +6,7 @@ import Resource.Algebra.ParametricLaws
   # Resource instance — the linear usage quantity `{0, 1, ω}`
 
   Author: Jonathan D.A. Jewell (hyperpolymath)
-  Verified: Lean 4.13.0 (pinned via `lean-toolchain`), no Mathlib.
+  Verified: Lean 4.35.0 (pinned via `lean-toolchain`), no Mathlib.
 
   The canonical **linear** (quantitative type theory, à la Atkey 2018) usage
   semiring: a binder is used exactly `0`, exactly `1`, or `ω`-many (unbounded)

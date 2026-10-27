@@ -6,7 +6,7 @@ import Resource.Algebra.Interface
   # Resource Algebra — the ordered layer
 
   Author: Jonathan D.A. Jewell (hyperpolymath)
-  Verified: Lean 4.13.0 (pinned via `lean-toolchain`), no Mathlib.
+  Verified: Lean 4.35.0 (pinned via `lean-toolchain`), no Mathlib.
 
   `ResourceAlgebra R` is the full consumer-facing interface: a
   `ResourceSemiring` (algebra core) together with an order `le` (`⊑`) and the

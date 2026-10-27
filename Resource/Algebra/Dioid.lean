@@ -6,7 +6,7 @@ import Resource.Algebra.Ordered
   # Resource Algebra — the canonical dioid order builder
 
   Author: Jonathan D.A. Jewell (hyperpolymath)
-  Verified: Lean 4.13.0 (pinned via `lean-toolchain`), no Mathlib.
+  Verified: Lean 4.35.0 (pinned via `lean-toolchain`), no Mathlib.
 
   A **dioid** is a semiring whose addition is idempotent (`a ⊞ a = a`).  Every
   dioid carries a *canonical* order

@@ -6,7 +6,7 @@ import Resource.Algebra.Ordered
   # Resource Algebra — parametric laws and the consumer transport theorem
 
   Author: Jonathan D.A. Jewell (hyperpolymath)
-  Verified: Lean 4.13.0 (pinned via `lean-toolchain`), no Mathlib.
+  Verified: Lean 4.35.0 (pinned via `lean-toolchain`), no Mathlib.
 
   This module exports the **law bundle that downstream soundness proofs depend
   on**, derived once and for all from the `ResourceAlgebra` interface.
