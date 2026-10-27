@@ -142,7 +142,7 @@ caps the fidelity of every format that must pass through it, so "universal" and
 "high fidelity" are contradictory the moment any format embeds at grade > 0;
 universal *low* fidelity is the achievable point (that is what JSON already is).
 This corollary closes Protocol Squisher's universal-interoperability claim using
-the project's own algebra. Machine-checked, depends only on `propext`.
+the project's own algebra. Machine-checked; on Lean 4.35.0 it depends on `propext` and `Quot.sound` (`propext` alone on 4.13.0, see the re-audit note under the theorem index).
 
 == The duality: `g ↦ maxGrade − g`
 
