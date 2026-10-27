@@ -7,7 +7,7 @@ import Resource.Instances.MaxPlus
   # Bridge — a resource algebra may measure Echo residues
 
   Author: Jonathan D.A. Jewell (hyperpolymath)
-  Verified: Lean 4.13.0 (pinned via `lean-toolchain`), no Mathlib.
+  Verified: Lean 4.35.0 (pinned via `lean-toolchain`), no Mathlib.
 
   ## Boundary invariant (the whole point of this file)
 

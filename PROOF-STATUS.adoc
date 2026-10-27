@@ -9,7 +9,7 @@ type-checked in this environment from what is CI-gated but not re-checked here.
 
 == Lean 4 — VERIFIED (this environment)
 
-* Toolchain: **Lean 4 v4.13.0** (pinned in `lean-toolchain`), *no Mathlib*
+* Toolchain: **Lean 4 v4.35.0** (pinned in `lean-toolchain`), *no Mathlib*
   dependency (pure core Lean 4).
 * Command: `lake build` after `rm -rf .lake/build` (clean rebuild).
 * Result: **Build completed successfully — 20/20 targets**, i.e. every Lean
@@ -27,7 +27,7 @@ Modules (libs `Tropical` + `Resource`):
 Reproduce:
 [source,sh]
 ----
-# Lean 4 v4.13.0 (e.g. via elan, or the toolchain tarball from GitHub releases)
+# Lean 4 v4.35.0 (e.g. via elan, or the toolchain tarball from GitHub releases)
 lake build
 ----
 

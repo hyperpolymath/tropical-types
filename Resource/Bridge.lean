@@ -9,7 +9,7 @@ import TropicalAdapterPath
   # Bridges — the two original twins stand on the resource-grade axis
 
   Author: Jonathan D.A. Jewell (hyperpolymath)
-  Verified: Lean 4.13.0 (pinned via `lean-toolchain`), no Mathlib.
+  Verified: Lean 4.35.0 (pinned via `lean-toolchain`), no Mathlib.
 
   `TropicalSessionTypes.lean` (max-plus session grading) and
   `TropicalAdapterPath.lean` (min-max bottleneck paths) predate the `Resource.*`

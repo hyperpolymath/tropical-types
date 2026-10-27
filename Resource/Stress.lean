@@ -9,7 +9,7 @@ import Resource.Instances.MinMax
   # Tropical as an infinite-carrier stress test
 
   Author: Jonathan D.A. Jewell (hyperpolymath)
-  Verified: Lean 4.13.0 (pinned via `lean-toolchain`), no Mathlib.
+  Verified: Lean 4.35.0 (pinned via `lean-toolchain`), no Mathlib.
 
   The finite usage instances (`Linear`, `Affine`) have three-element carriers, so
   one *could* discharge their laws by brute enumeration.  The tropical instances

@@ -6,7 +6,7 @@ serving as serious infinite-carrier stress tests.
 
 This file is the stable contract. The machine-checked source of truth is
 the `+Resource.*+` Lean 4 library (aggregator: `+Resource.lean+`), built
-dependency-free on the pinned `+leanprover/lean4:v4.13.0+` (no Mathlib).
+dependency-free on the pinned `+leanprover/lean4:v4.35.0+` (no Mathlib).
 
 === Vocabulary
 

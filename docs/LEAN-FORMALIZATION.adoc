@@ -33,7 +33,7 @@ compiling definitions are the ones described **here**.
 
 == TL;DR
 
-* Two files, one Lake library, pinned to **Lean 4.13.0** (`lean-toolchain`),
+* Two files, one Lake library, pinned to **Lean 4.35.0** (`lean-toolchain`),
   **no Mathlib** (`import Init` only).
 * `TropicalSessionTypes.lean` — the **max-plus** semiring (⊕ = max, ⊗ = +),
   grading speculative session types.
@@ -49,7 +49,7 @@ compiling definitions are the ones described **here**.
 
 [source,bash]
 ----
-# The toolchain is pinned in ./lean-toolchain (leanprover/lean4:v4.13.0);
+# The toolchain is pinned in ./lean-toolchain (leanprover/lean4:v4.35.0);
 # elan reads it automatically. No network deps — Init only.
 lake build
 
@@ -211,6 +211,12 @@ inventory is recorded verbatim in the migration commit and in `CHANGELOG.md`.
 | `dual_tcAdd_is_max` | AdapterPath | propext, Quot.sound
 | `dual_tcMul_is_min` | AdapterPath | propext, Quot.sound
 |===
+
+Re-audited 2026-10-27 on Lean 4.35.0, after the toolchain moved from 4.13.0:
+every row above is unchanged except `hub_ceiling`, now `propext, Quot.sound`.
+Its proof text did not change; v4.35's core `simp` closes the `pathCost` goals
+by a different route. Still within the `lean.yml` policy (no `sorry`, no
+`Classical.choice`).
 
 == Open items (carried from the file headers)
 

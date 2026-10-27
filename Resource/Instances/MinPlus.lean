@@ -6,7 +6,7 @@ import Resource.Algebra.Dioid
   # Resource instance — the min-plus tropical cost algebra
 
   Author: Jonathan D.A. Jewell (hyperpolymath)
-  Verified: Lean 4.13.0 (pinned via `lean-toolchain`), no Mathlib.
+  Verified: Lean 4.35.0 (pinned via `lean-toolchain`), no Mathlib.
 
   The classical **min-plus** (shortest-path / Mohri) tropical semiring on
   `ℕ ∪ {+∞}`.  A clean infinite-carrier instance: unlike the bounded `1000000`-
@@ -93,8 +93,8 @@ def semiring : Resource.ResourceSemiring MinPlus where
   mul_one       := by intro a;     cases a <;> simp [mul]
   zero_mul      := by intro a;     cases a <;> rfl
   mul_zero      := by intro a;     cases a <;> rfl
-  left_distrib  := by intro a b c; cases a <;> cases b <;> cases c <;> simp [mul, add, nat_add_min_left]
-  right_distrib := by intro a b c; cases a <;> cases b <;> cases c <;> simp [mul, add, nat_add_min_right]
+  left_distrib  := by intro a b c; cases a <;> cases b <;> cases c <;> simp only [mul, add, nat_add_min_left]
+  right_distrib := by intro a b c; cases a <;> cases b <;> cases c <;> simp only [mul, add, nat_add_min_right]
 
 instance instResourceAlgebra : Resource.ResourceAlgebra MinPlus :=
   Resource.ResourceAlgebra.ofIdempotentAdd (inst := semiring) add_idem

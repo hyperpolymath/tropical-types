@@ -6,7 +6,7 @@ import Resource.Algebra.ParametricLaws
   # Resource instance — the affine usage quantity `{0, 1, ω}`
 
   Author: Jonathan D.A. Jewell (hyperpolymath)
-  Verified: Lean 4.13.0 (pinned via `lean-toolchain`), no Mathlib.
+  Verified: Lean 4.35.0 (pinned via `lean-toolchain`), no Mathlib.
 
   The **affine** usage semiring.  Same carrier and same `add`/`mul` as
   `Resource.Instances.Linear`; the *only* difference is the order.

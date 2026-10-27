@@ -105,7 +105,7 @@ Vocabulary and contract are in `FOUNDATION_CONTRACT.md`; full detail in `docs/RE
 |===
 | Property | Status
 
-| Lean 4.13.0, `lake build` green
+| Lean 4.35.0, `lake build` green
 | Yes
 
 | Depends only on `Init`

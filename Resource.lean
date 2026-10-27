@@ -19,7 +19,7 @@ import Resource.Closure
   # `Resource` — the resource-grade axis (aggregator)
 
   Author: Jonathan D.A. Jewell (hyperpolymath)
-  Verified: Lean 4.13.0 (pinned via `lean-toolchain`), no Mathlib.
+  Verified: Lean 4.35.0 (pinned via `lean-toolchain`), no Mathlib.
 
   This is the single import a downstream language (e.g. `my-lang`) needs to pick
   up the entire **resource-grade axis** that `tropical-resource-typing` exports.

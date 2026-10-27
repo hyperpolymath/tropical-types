@@ -128,8 +128,7 @@ theorem tcJoin_idem (c : TransportClass) : tcJoin c c = c := by
 theorem tcJoin_concorde_left (c : TransportClass) : tcJoin .Concorde c = c := by
   apply grade_injective
   rw [tcJoin_grade]
-  simp only [grade, Nat.max_def]
-  split <;> omega
+  cases c <;> rfl
 
 theorem tcJoin_concorde_right (c : TransportClass) : tcJoin c .Concorde = c := by
   rw [tcJoin_comm]; exact tcJoin_concorde_left c
@@ -295,7 +294,7 @@ private theorem foldl_tcAdd_le_init :
 private theorem foldl_tcAdd_le_mem :
     ∀ (acc : Nat) (xs : List AdapterPath) (Q : AdapterPath),
     Q ∈ xs → xs.foldl (fun a R => tcAdd a (pathCost R)) acc ≤ pathCost Q
-  | _,   [],          _, hQ  => absurd hQ (List.not_mem_nil _)
+  | _,   [],          _, hQ  => absurd hQ List.not_mem_nil
   | acc, R :: rest,   Q, hQ  =>
       match List.mem_cons.mp hQ with
       | Or.inl h =>
@@ -416,7 +415,7 @@ theorem pathCost_le_sequential (path : AdapterPath) :
 theorem hub_ceiling (e : TransportClass) (path : List TransportClass)
     (h : e ∈ path) : grade e ≤ pathCost path := by
   induction path with
-  | nil => exact absurd h (List.not_mem_nil e)
+  | nil => exact absurd h List.not_mem_nil
   | cons c cs ih =>
     rcases List.mem_cons.mp h with rfl | h'
     · cases cs with

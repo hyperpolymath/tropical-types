@@ -6,7 +6,7 @@
 # Load-bearing build workflow (kept standalone in-repo, not in the shared
 # governance bundle): `lake build` over both order-reversing twins, then a
 # `#print axioms` audit asserting no `sorry`/`Classical.choice` crept in.
-# Toolchain is pinned by ./lean-toolchain (leanprover/lean4:v4.13.0); no Mathlib.
+# Toolchain is pinned by ./lean-toolchain (leanprover/lean4:v4.35.0); no Mathlib.
 
 name: Lean
 

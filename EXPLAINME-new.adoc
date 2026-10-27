@@ -108,7 +108,7 @@ Every headline theorem depends only on propext (+ Quot.sound) — no sorry, no C
 ____
 
 How this is implemented::
-`lake build` is green. `lean-toolchain` pins Lean 4.13.0. Imports are only `Init`. Grep for `sorry` and `Classical.choice` returns no hits in proof terms. Full provenance in `link:docs/LEAN-FORMALIZATION.adoc[]`.
+`lake build` is green. `lean-toolchain` pins Lean 4.35.0. Imports are only `Init`. Grep for `sorry` and `Classical.choice` returns no hits in proof terms. Full provenance in `link:docs/LEAN-FORMALIZATION.adoc[]`.
 
 Caveat::
 The dependence on `propext` and `Quot.sound` is the standard foundational commitment for Lean 4 mathematics using quotients. This is not constructively neutral; a user working in a strict cubical setting would need to re-derive these results.

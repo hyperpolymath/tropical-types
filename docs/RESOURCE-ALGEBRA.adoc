@@ -9,7 +9,7 @@ Jonathan D.A. Jewell
 
 Authoritative reference for the `Resource.*` Lean 4 library — the
 consumer-facing *resource-grade axis* that `tropical-resource-typing` exports for
-downstream languages such as `my-lang`. Pinned to *Lean 4.13.0*
+downstream languages such as `my-lang`. Pinned to *Lean 4.35.0*
 (`lean-toolchain`), `import Init` only, *no Mathlib*.
 
 The two pre-existing root files (`TropicalSessionTypes.lean`,

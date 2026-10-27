@@ -6,7 +6,7 @@ import Init
 
   Author: Jonathan D.A. Jewell (hyperpolymath)
   Date:   2026-04-11
-  Verified: Lean 4.13.0 (pinned via `lean-toolchain`), `import Init` (no Mathlib dependency)
+  Verified: Lean 4.35.0 (pinned via `lean-toolchain`), `import Init` (no Mathlib dependency)
 
   ## The unsolved problem
 
@@ -167,13 +167,13 @@ private theorem nat_mul_add_max_right (k m n : Nat) :
 theorem left_distrib_trop (a b c : Tropical) :
     tMul a (tAdd b c) = tAdd (tMul a b) (tMul a c) := by
   cases a <;> cases b <;> cases c <;>
-    simp [tMul, tAdd, nat_mul_add_max_left]
+    simp only [tMul, tAdd, nat_mul_add_max_left]
 
 /-- Right distributivity: `(a ⊕ b) ⊗ c = (a ⊗ c) ⊕ (b ⊗ c)`. -/
 theorem right_distrib_trop (a b c : Tropical) :
     tMul (tAdd a b) c = tAdd (tMul a c) (tMul b c) := by
   cases a <;> cases b <;> cases c <;>
-    simp [tMul, tAdd, nat_mul_add_max_right]
+    simp only [tMul, tAdd, nat_mul_add_max_right]
 
 -- ============================================================================
 -- 4. CommSemiring Typeclass (local definition, Mathlib-compatible interface)

@@ -8,7 +8,7 @@ import Resource.Instances.MinMax
   # Resource Algebra — the Kleene / Floyd–Warshall all-pairs closure layer
 
   Author: Jonathan D.A. Jewell (hyperpolymath)
-  Verified: Lean 4.13.0 (pinned via `lean-toolchain`), `import Init` only (no
+  Verified: Lean 4.35.0 (pinned via `lean-toolchain`), `import Init` only (no
   Mathlib; we import the Mathlib-free `Resource.*` axis).
 
   ## What this module is
@@ -89,11 +89,11 @@ theorem mem_allFins : ∀ (n : Nat) (i : Fin n), i ∈ allFins n := by
   | succ m ih =>
     intro i
     match i with
-    | ⟨0, _⟩ => exact List.mem_cons_self _ _
+    | ⟨0, _⟩ => exact List.mem_cons_self
     | ⟨k+1, h⟩ =>
       apply List.mem_cons_of_mem
       have hmem : (⟨k, by omega⟩ : Fin m) ∈ allFins m := ih _
-      have := List.mem_map_of_mem Fin.succ hmem
+      have := List.mem_map_of_mem (f := Fin.succ) hmem
       simpa [Fin.succ] using this
 
 -- ============================================================================
@@ -122,7 +122,7 @@ theorem lsum_mono {β : Type v} (l : List β) (f g : β → R)
   | nil => exact Resource.ResourceAlgebra.le_refl _
   | cons x xs ih =>
     simp only [List.map_cons, lsum_cons]
-    have hx : (f x) ⊑ (g x) := h x (List.mem_cons_self _ _)
+    have hx : (f x) ⊑ (g x) := h x (List.mem_cons_self)
     have hrest : (lsum (xs.map f)) ⊑ (lsum (xs.map g)) :=
       ih (fun b hb => h b (List.mem_cons_of_mem _ hb))
     exact Resource.add_le_add hx hrest
@@ -260,7 +260,7 @@ theorem le_lsum_of_mem (hab : Absorb R) {a : R} :
     ∀ {l : List R}, a ∈ l → a ⊑ lsum l := by
   intro l
   induction l with
-  | nil => intro h; exact absurd h (List.not_mem_nil a)
+  | nil => intro h; exact absurd h List.not_mem_nil
   | cons x xs ih =>
     intro h
     rcases List.mem_cons.mp h with hx | hxs

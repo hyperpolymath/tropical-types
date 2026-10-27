@@ -6,7 +6,7 @@ import Init
   # Resource Algebra — the consumer-facing interface (algebra layer)
 
   Author: Jonathan D.A. Jewell (hyperpolymath)
-  Verified: Lean 4.13.0 (pinned via `lean-toolchain`), `import Init` (no Mathlib).
+  Verified: Lean 4.35.0 (pinned via `lean-toolchain`), `import Init` (no Mathlib).
 
   ## What this module is
 
