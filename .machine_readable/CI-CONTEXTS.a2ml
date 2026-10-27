@@ -33,9 +33,9 @@ published-contexts = ["hypatia / Hypatia Neurosymbolic Analysis"]
 [[wrapper]]
 gate = "Secret Scanner"
 workflow = ".github/workflows/secret-scanner.yml"
-caller-job-id = "secret-scan"
+caller-job-id = "scan"
 reusable = "hyperpolymath/standards/.github/workflows/secret-scanner-reusable.yml"
-published-contexts = ["secret-scan / gitleaks", "secret-scan / rust-secrets", "secret-scan / shell-secrets"]
+published-contexts = ["scan / gitleaks", "scan / rust-secrets", "scan / shell-secrets"]
 
 [[wrapper]]
 gate = "Governance"
