@@ -71,6 +71,16 @@ jobs:
           #print axioms Resource.Bridge.grade_le_sequential
           #print axioms Resource.Bridge.hub_ceiling_le
           #print axioms Resource.Bridge.embed_tcZero_ne_zero
+          -- HubCeiling: squeakwell R5–R7 (hub ceiling, reach grade, weighted residue measure)
+          #print axioms Resource.HubCeiling.factor_le
+          #print axioms Resource.HubCeiling.single_hub_ceiling
+          #print axioms Resource.HubCeiling.single_hub_star_ceiling
+          #print axioms Resource.HubCeiling.lsum_filter_mono
+          #print axioms Resource.HubCeiling.reachGrade_mono_mat
+          #print axioms Resource.HubCeiling.reachGrade_mono_set
+          #print axioms Resource.HubCeiling.one_le_reachGrade
+          #print axioms Resource.HubCeiling.weightedResidueMeasure
+          #print axioms Resource.HubCeiling.Witness.maxplus_not_one_top
           EOF
           out="$(lake env lean /tmp/axcheck.lean 2>&1)"
           echo "$out"

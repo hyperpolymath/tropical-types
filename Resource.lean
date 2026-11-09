@@ -14,6 +14,7 @@ import Resource.EchoBridge
 import Resource.Conformance
 import Resource.Bridge
 import Resource.Closure
+import Resource.HubCeiling
 
 /-!
   # `Resource` — the resource-grade axis (aggregator)
@@ -61,4 +62,10 @@ import Resource.Closure
                             bottleneck).  The `EntryBounded` / `AllPairsCosts`
                             certificate and `matStar` monotonicity mirror
                             `typed-wasm`'s Idris `Tropical.idr` onto the axis.
+  * `Resource.HubCeiling` — hub ceilings (`factor_le`, `single_hub_ceiling`,
+                            `single_hub_star_ceiling` under an explicit `IsStar`),
+                            reach grades over an observed set (`reachGrade`,
+                            monotone in matrix and set; `one ⊑` on observed nodes),
+                            and the generic `weightedResidueMeasure`. Serves
+                            `hyperpolymath/squeakwell` rungs R5–R7.
 -/

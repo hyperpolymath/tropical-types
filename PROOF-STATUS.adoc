@@ -12,7 +12,7 @@ type-checked in this environment from what is CI-gated but not re-checked here.
 * Toolchain: **Lean 4 v4.35.0** (pinned in `lean-toolchain`), *no Mathlib*
   dependency (pure core Lean 4).
 * Command: `lake build` after `rm -rf .lake/build` (clean rebuild).
-* Result: **Build completed successfully — 20/20 targets**, i.e. every Lean
+* Result: **Build completed successfully — 21/21 targets** (2026-11-09, with `HubCeiling`), i.e. every Lean
   module type-checks.
 
 Modules (libs `Tropical` + `Resource`):
@@ -22,7 +22,10 @@ Modules (libs `Tropical` + `Resource`):
 * `Resource.lean` aggregator + `Resource/Algebra/{Interface,Ordered,Dioid,ParametricLaws}.lean`
   (the ordered-semiring / resource-algebra interface + parametric transport theorem).
 * `Resource/Instances/{MaxPlus,MinPlus,MinMax,Linear,Affine}.lean` (concrete semirings).
-* `Resource/{Bridge,Closure,Conformance,Stress,EchoBridge}.lean`.
+* `Resource/{Bridge,Closure,Conformance,Stress,EchoBridge,HubCeiling}.lean`
+  (`HubCeiling` added 2026-11-09: hub ceilings, reach grades, weighted residue
+  measure for `hyperpolymath/squeakwell` rungs R5–R7; built here with
+  `lake build`, axiom audit `propext`/`Quot.sound` only, no `sorry`).
 
 Reproduce:
 [source,sh]
