@@ -88,11 +88,25 @@ jobs:
             echo "::error::axiom audit failed — sorry, Classical.choice or an elaboration error present"
             exit 1
           fi
+          # Lean may wrap a long "depends on axioms: [...]" list over several
+          # lines, so parse the output with newlines collapsed to spaces.
+          flat="$(printf '%s' "$out" | tr '\n' ' ')"
+          # Every audited declaration must yield exactly one parsed verdict;
+          # an unparseable result fails instead of reading as "no axioms".
+          expected="$(grep -c '^#print axioms ' /tmp/axcheck.lean)"
+          verdicts="$(printf '%s' "$flat" \
+            | grep -oE "does not depend on any axioms|depends on axioms: \[[^]]*\]" \
+            | wc -l)"
+          if [ "$verdicts" -ne "$expected" ]; then
+            echo "::error::axiom audit failed — parsed $verdicts verdicts for $expected '#print axioms' lines"
+            exit 1
+          fi
           # Allowlist: every printed dependency must be propext or Quot.sound.
           # Any other axiom (a project `axiom`, funext, Classical.*) fails the audit.
-          extra="$(echo "$out" | grep -o 'depends on axioms: \[[^]]*\]' \
+          # grep exits 1 when nothing is left over (the good case); tolerate only that.
+          extra="$(printf '%s' "$flat" | grep -oE 'depends on axioms: \[[^]]*\]' \
             | sed -E 's/.*\[(.*)\]/\1/; s/,/ /g' | tr ' ' '\n' \
-            | grep -v '^$' | grep -vxE 'propext|Quot\.sound' || true)"
+            | grep -v '^$' | grep -vxE 'propext|Quot\.sound' || test "$?" -eq 1)"
           if [ -n "$extra" ]; then
             echo "::error::axiom audit failed — axioms outside the allowlist: $extra"
             exit 1
