@@ -29,9 +29,11 @@ import Resource.EchoBridge
     generalised sum (`join_bound`, `lsum_bound`), and then to matrix products
     (`matMul_row_bound`, `single_hub_ceiling`).  The *star* corollary
     (`single_hub_star_ceiling`) is stated only under an explicit `IsStar`
-    hypothesis — the Kleene fixed-point equation `S = I ⊞ A ⊠ S` — because the
-    repository has no walk semantics for `matStar` in Lean; that larger item is
-    not on squeakwell's critical path.
+    hypothesis — the Kleene fixed-point equation `S = I ⊞ A ⊠ S`. The finite
+    sum `matStar` does not satisfy that equation in general (a single `MaxPlus`
+    node with a positive self-loop is a counterexample), and the repository has
+    no walk semantics for `matStar` in Lean; that larger item is not on
+    squeakwell's critical path.
   * **R7 — reach grade.**  `reachGrade A S m` is the `⊞`-sum of the closure
     entries `A* k m` over the OBSERVED set `S` (a `Bool` predicate on nodes):
     "how well can `m` be reached from what was actually observed".  Proved:
@@ -143,9 +145,11 @@ theorem single_hub_ceiling (htop : OneTop R) (idem : Idem R) (hab : Absorb R)
   · rw [hs k hk, Resource.ResourceSemiring.zero_mul]
     exact zero_bot hab _
 
-/-- The Kleene fixed-point equation.  `matStar` is one solution in the walk
-    semantics this repository does not yet formalise in Lean; the corollary
-    below therefore takes the equation as an explicit hypothesis. -/
+/-- The Kleene fixed-point equation.  The finite sum `matStar` does NOT
+    always satisfy it (one `MaxPlus` node with a `val 1` self-loop has
+    `matStar A = I = val 0` but `I ⊞ A ⊠ I = val 1`), and this repository
+    has no walk semantics in Lean under which it would; so the corollary
+    below takes the equation as an explicit hypothesis. -/
 def IsStar {n : Nat} (A S : Mat n R) : Prop :=
   S = matAdd matId (matMul A S)
 

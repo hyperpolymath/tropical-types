@@ -84,7 +84,16 @@ jobs:
           EOF
           out="$(lake env lean /tmp/axcheck.lean 2>&1)"
           echo "$out"
-          if echo "$out" | grep -qiE 'sorry|Classical\.choice'; then
-            echo "::error::axiom audit failed — sorry or Classical.choice present"
+          if echo "$out" | grep -qiE 'sorry|Classical\.choice|error'; then
+            echo "::error::axiom audit failed — sorry, Classical.choice or an elaboration error present"
+            exit 1
+          fi
+          # Allowlist: every printed dependency must be propext or Quot.sound.
+          # Any other axiom (a project `axiom`, funext, Classical.*) fails the audit.
+          extra="$(echo "$out" | grep -o 'depends on axioms: \[[^]]*\]' \
+            | sed -E 's/.*\[(.*)\]/\1/; s/,/ /g' | tr ' ' '\n' \
+            | grep -v '^$' | grep -vxE 'propext|Quot\.sound' || true)"
+          if [ -n "$extra" ]; then
+            echo "::error::axiom audit failed — axioms outside the allowlist: $extra"
             exit 1
           fi
