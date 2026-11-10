@@ -71,10 +71,43 @@ jobs:
           #print axioms Resource.Bridge.grade_le_sequential
           #print axioms Resource.Bridge.hub_ceiling_le
           #print axioms Resource.Bridge.embed_tcZero_ne_zero
+          -- HubCeiling: squeakwell R5–R7 (hub ceiling, reach grade, weighted residue measure)
+          #print axioms Resource.HubCeiling.factor_le
+          #print axioms Resource.HubCeiling.single_hub_ceiling
+          #print axioms Resource.HubCeiling.single_hub_star_ceiling
+          #print axioms Resource.HubCeiling.lsum_filter_mono
+          #print axioms Resource.HubCeiling.reachGrade_mono_mat
+          #print axioms Resource.HubCeiling.reachGrade_mono_set
+          #print axioms Resource.HubCeiling.one_le_reachGrade
+          #print axioms Resource.HubCeiling.weightedResidueMeasure
+          #print axioms Resource.HubCeiling.Witness.maxplus_not_one_top
           EOF
           out="$(lake env lean /tmp/axcheck.lean 2>&1)"
           echo "$out"
-          if echo "$out" | grep -qiE 'sorry|Classical\.choice'; then
-            echo "::error::axiom audit failed — sorry or Classical.choice present"
+          if echo "$out" | grep -qiE 'sorry|Classical\.choice|error'; then
+            echo "::error::axiom audit failed — sorry, Classical.choice or an elaboration error present"
+            exit 1
+          fi
+          # Lean may wrap a long "depends on axioms: [...]" list over several
+          # lines, so parse the output with newlines collapsed to spaces.
+          flat="$(printf '%s' "$out" | tr '\n' ' ')"
+          # Every audited declaration must yield exactly one parsed verdict;
+          # an unparseable result fails instead of reading as "no axioms".
+          expected="$(grep -c '^#print axioms ' /tmp/axcheck.lean)"
+          verdicts="$(printf '%s' "$flat" \
+            | grep -oE "does not depend on any axioms|depends on axioms: \[[^]]*\]" \
+            | wc -l)"
+          if [ "$verdicts" -ne "$expected" ]; then
+            echo "::error::axiom audit failed — parsed $verdicts verdicts for $expected '#print axioms' lines"
+            exit 1
+          fi
+          # Allowlist: every printed dependency must be propext or Quot.sound.
+          # Any other axiom (a project `axiom`, funext, Classical.*) fails the audit.
+          # grep exits 1 when nothing is left over (the good case); tolerate only that.
+          extra="$(printf '%s' "$flat" | grep -oE 'depends on axioms: \[[^]]*\]' \
+            | sed -E 's/.*\[(.*)\]/\1/; s/,/ /g' | tr ' ' '\n' \
+            | grep -v '^$' | grep -vxE 'propext|Quot\.sound' || test "$?" -eq 1)"
+          if [ -n "$extra" ]; then
+            echo "::error::axiom audit failed — axioms outside the allowlist: $extra"
             exit 1
           fi
